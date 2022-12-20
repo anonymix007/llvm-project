@@ -1714,6 +1714,9 @@ static bool canConvertValue(const DataLayout &DL, Type *OldTy, Type *NewTy) {
     return false;
   }
 
+  if (OldTy->isTargetExtTy() || NewTy->isTargetExtTy())
+    return false;
+
   return true;
 }
 
