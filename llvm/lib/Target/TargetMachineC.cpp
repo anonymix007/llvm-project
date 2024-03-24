@@ -95,10 +95,19 @@ LLVMBool LLVMTargetHasAsmBackend(LLVMTargetRef T) {
   return unwrap(T)->hasMCAsmBackend();
 }
 
-LLVMTargetMachineRef LLVMCreateTargetMachine(LLVMTargetRef T,
-        const char *Triple, const char *CPU, const char *Features,
-        LLVMCodeGenOptLevel Level, LLVMRelocMode Reloc,
-        LLVMCodeModel CodeModel) {
+LLVMTargetMachineRef
+LLVMCreateTargetMachine(LLVMTargetRef T, const char *Triple, const char *CPU,
+                        const char *Features, LLVMCodeGenOptLevel Level,
+                        LLVMRelocMode Reloc, LLVMCodeModel CodeModel) {
+  return LLVMCreateTargetMachineWithABI(T, Triple, CPU, Features, "", Level,
+                                        Reloc, CodeModel);
+}
+
+LLVMTargetMachineRef
+LLVMCreateTargetMachineWithABI(LLVMTargetRef T, const char *Triple,
+                               const char *CPU, const char *Features,
+                               const char *ABI, LLVMCodeGenOptLevel Level,
+                               LLVMRelocMode Reloc, LLVMCodeModel CodeModel) {
   Optional<Reloc::Model> RM;
   switch (Reloc){
     case LLVMRelocStatic:
@@ -143,6 +152,7 @@ LLVMTargetMachineRef LLVMCreateTargetMachine(LLVMTargetRef T,
   }
 
   TargetOptions opt;
+  opt.MCOptions.ABIName = ABI;
   return wrap(unwrap(T)->createTargetMachine(Triple, CPU, Features, opt, RM, CM,
                                              OL, JIT));
 }
